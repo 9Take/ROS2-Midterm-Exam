@@ -20,6 +20,9 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'circle_publisher = py_pubsub.circle_publisher:main',  
+            'talker = py_pubsub.publisher_member_function:main',
+            'listener = py_pubsub.subscriber_member_function:main',
         ],
     },
 )
