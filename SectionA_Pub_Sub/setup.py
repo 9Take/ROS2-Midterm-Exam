@@ -20,9 +20,10 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'circle_publisher = py_pubsub.circle_publisher:main',  
-            'talker = py_pubsub.publisher_member_function:main',
-            'listener = py_pubsub.subscriber_member_function:main',
+            'odom_logger = SectionA_Pub_Sub.odom_logger:main',  # Add this line
+            'circle_publisher = SectionA_Pub_Sub.circle_publisher:main',
+            'talker = SectionA_Pub_Sub.publisher_member_function:main',
+            'listener = SectionA_Pub_Sub.subscriber_member_function:main',
         ],
     },
 )
