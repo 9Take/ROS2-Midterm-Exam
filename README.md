@@ -54,6 +54,7 @@ Section C: Action (40 points)
 Create an action server node named “rotate_action_server” using a custom
 action definition “Rotate.action” :
 <img width="655" height="213" alt="image" src="https://github.com/user-attachments/assets/906dcce7-ad99-4b33-8d1d-c9f9521d709c" />
+
 Section C: Action (40 points)
 • Task C1(Action Server) – 25 pts
 The server should:
@@ -61,6 +62,7 @@ The server should:
 • Track the remaining angle of the robot for calculating the proper velocity through the
 simple P controller by the following concept:
 <img width="781" height="179" alt="image" src="https://github.com/user-attachments/assets/175d218a-d761-4e10-b77e-071cfbbe069d" />
+
 • Publish feedback every 0.1 second (10 Hz).
 • Stop and succeed when finished.
 
