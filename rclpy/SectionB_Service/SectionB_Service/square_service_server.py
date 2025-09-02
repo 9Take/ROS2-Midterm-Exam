@@ -5,7 +5,7 @@ from geometry_msgs.msg import Twist
 import time
 import math
 
-class CirclePublisher(Node):
+class SquareServiceServer(Node):
     def __init__(self):
         super().__init__('square_service_server')
 
@@ -54,7 +54,7 @@ class CirclePublisher(Node):
         self.get_logger().info("Finished moving in square.")
 
         return response
-    
+
     def publish_velocity(self, move_msg, duration):
         """Helper function to continuously publish velocity for a duration"""
         start_time = self.get_clock().now().to_sec()
