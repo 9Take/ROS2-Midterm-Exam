@@ -21,9 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
             'odom_logger = SectionA_Pub_Sub.odom_logger:main',  # Add this line
-            'circle_publisher = SectionA_Pub_Sub.circle_publisher:main',
-            'talker = SectionA_Pub_Sub.publisher_member_function:main',
-            'listener = SectionA_Pub_Sub.subscriber_member_function:main',
+            'circle_publisher = SectionA_Pub_Sub.circle_publisher:main'
         ],
     },
 )
