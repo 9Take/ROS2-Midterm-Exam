@@ -57,10 +57,15 @@ class SquareServiceServer(Node):
 
     def publish_velocity(self, move_msg, duration):
         """Helper function to continuously publish velocity for a duration"""
-        start_time = self.get_clock().now().to_sec()
-        while (self.get_clock().now().to_sec() - start_time) < duration:
+        # start_time = self.get_clock().now().to_sec()
+        # while (self.get_clock().now().to_sec() - start_time) < duration:
+        #     self.publisher.publish(move_msg)
+        #     rclpy.spin_once(self, timeout_sec=0.1)
+        start_time = self.get_clock().now()
+        while (self.get_clock().now() - start_time).nanoseconds * 1e-9 < duration:
             self.publisher.publish(move_msg)
             rclpy.spin_once(self, timeout_sec=0.1)
+
 
 def main(args=None):
     rclpy.init(args=args)
