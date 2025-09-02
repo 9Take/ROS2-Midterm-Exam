@@ -20,7 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'square_service_server = SectionB_Service.square_service_server:main'
+            'square_service_server = SectionB_Service.square_service_server:main',
+            'square_service_client = SectionB_Service.square_service_client:main'
         ],
     },
 )
