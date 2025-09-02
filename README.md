@@ -53,7 +53,9 @@ Section C: Action (40 points)
 • Task C1(Action Server) – 25 pts
 Create an action server node named “rotate_action_server” using a custom
 action definition “Rotate.action” :
-<img width="655" height="213" alt="image" src="https://github.com/user-attachments/assets/906dcce7-ad99-4b33-8d1d-c9f9521d709c" />
+
+<img width="648" height="207" alt="image" src="https://github.com/user-attachments/assets/93446405-96aa-42ab-b59a-71b79a8645cc" />
+
 
 Section C: Action (40 points)
 • Task C1(Action Server) – 25 pts
