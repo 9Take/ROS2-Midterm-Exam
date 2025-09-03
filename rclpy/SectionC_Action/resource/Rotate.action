@@ -1,0 +1,15 @@
+# Goal
+
+float64 angle   #target rotation in radians (+CCW, -CW)
+
+---
+
+# Result
+
+bool success
+
+---
+
+# Feedback
+
+float64 remaining_angle
