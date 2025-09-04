@@ -8,7 +8,7 @@ class CirclePublisher(Node):
         self.publisher_ = self.create_publisher(Twist, 'cmd_vel', 10)
         
         # Timer to publish velocity every 0.1 seconds
-        timer_period = 0.  # seconds
+        timer_period = 0.1  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
         
         # Linear velocity and angular velocity for a circle (radius 0.5 meters)

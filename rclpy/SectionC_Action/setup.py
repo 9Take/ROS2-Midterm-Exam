@@ -20,7 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'rotate_action_server = SectionC_Action.rotate_action_server:main'
+            'circle_action_server = SectionC_Action.circle_action_server:main',
+            'circle_action_client = SectionC_Action.circle_action_client:main',
         ],
     },
 )
