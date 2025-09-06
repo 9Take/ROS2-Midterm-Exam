@@ -7,7 +7,7 @@ from rclpy.node import Node
 from rclpy.action import ActionServer, CancelResponse
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
-from section_c_interfaces.action import Rotate   # uses Rotate.action
+from section_c_interface.action import Rotate   # uses Rotate.action
 
 
 def normalize_angle(a: float) -> float:
