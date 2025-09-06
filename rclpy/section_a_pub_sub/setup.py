@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'SectionA_Pub_Sub'
+package_name = 'section_a_pub_sub'
 
 setup(
     name=package_name,
@@ -20,8 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'odom_logger = SectionA_Pub_Sub.odom_logger:main',  # Add this line
-            'circle_publisher = SectionA_Pub_Sub.circle_publisher:main'
+            'odom_logger = section_a_pub_sub.odom_logger:main',  # Add this line
+            'circle_publisher = section_a_pub_sub.circle_publisher:main'
         ],
     },
 )

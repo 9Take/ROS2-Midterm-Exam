@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'SectionB_Service'
+package_name = 'section_b_service'
 
 setup(
     name=package_name,
@@ -20,8 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'square_service_server = SectionB_Service.square_service_server:main',
-            'square_service_client = SectionB_Service.square_service_client:main'
+            'square_service_server = section_b_service.square_service_server:main',
+            'square_service_client = section_b_service.square_service_client:main'
         ],
     },
 )
