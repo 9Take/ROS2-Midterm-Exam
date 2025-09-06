@@ -4,7 +4,7 @@ import sys
 import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionClient
-from section_c_interface.action import Rotate
+from section_c_interfaces.action import Rotate
 
 
 class RotateClient(Node):
