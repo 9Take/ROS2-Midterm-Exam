@@ -1,149 +1,154 @@
-#!/usr/bin/env python3
 import math
-import asyncio
+import time
 
 import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionServer, CancelResponse
+
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
-from secion_c_interface.action import Rotate 
+from section_c_interface.action import Rotate  # from interface package
 
 
-
-def angle_wrap(rad):
-    """wrap ให้อยู่ในช่วง [-pi, pi]"""
-    return math.atan2(math.sin(rad), math.cos(rad))
-
-
-def quat_to_yaw(x, y, z, w):
-    """คำนวณ yaw จาก quaternion (odom)"""
-    # yaw = atan2(2(wz + xy), 1 - 2(y^2 + z^2))
-    return math.atan2(2.0*(w*z + x*y), 1.0 - 2.0*(y*y + z*z))
+def normalize_angle(angle):
+    """wrap to [-pi, pi]"""
+    a = (angle + math.pi) % (2.0 * math.pi)
+    if a < 0:
+        a += 2.0 * math.pi
+    return a - math.pi
 
 
 class RotateActionServer(Node):
     def __init__(self):
         super().__init__('rotate_action_server')
 
-        # พารามิเตอร์ P-controller (ปรับได้ตอนรันด้วย ros2 param หรือแก้ค่าด้านล่าง)
-        self.declare_parameter('kp', 1.2)           # กำไร P
-        self.declare_parameter('max_speed', 1.2)    # rad/s (จำกัดความเร็วหมุน)
-        self.declare_parameter('tolerance', 0.02)   # rad (≈1.15°)
-        self.declare_parameter('rate_hz', 10.0)     # 10 Hz
-
-        # I/O
+        # pub /cmd_vel
         self.cmd_pub = self.create_publisher(Twist, '/cmd_vel', 10)
-        self.odom_sub = self.create_subscription(Odometry, '/odom', self._odom_cb, 20)
 
-        # ตัวแปร odom
-        self._have_odom = False
-        self._current_yaw = 0.0
+        # subscribe /odom to read yaw
+        self._yaw = 0.0
+        self.create_subscription(Odometry, '/odom', self._odom_cb, 25)
 
-        # Action server
+        # action server
         self._server = ActionServer(
             self,
             Rotate,
             'rotate',
             execute_callback=self.execute_cb,
-            cancel_callback=self.cancel_cb
-        )
+            goal_callback=self.goal_cb,
+            handle_accepted_callback=None,
+            cancel_callback=self.cancel_cb)
 
-        self.get_logger().info('rotate_action_server ready.')
+        # params for P controller
+        self.declare_parameter('kp', 1.2)          # tune this
+        self.declare_parameter('max_w', 1.2)       # rad/s
+        self.declare_parameter('min_w', 0.15)      # rad/s to overcome static
+        self.declare_parameter('tolerance_deg', 10.0)
 
-    # ---- Odometry callback ----
+        self.get_logger().info('rotate_action_server ready')
+
+    # --- callbacks ---
     def _odom_cb(self, msg: Odometry):
         q = msg.pose.pose.orientation
-        self._current_yaw = quat_to_yaw(q.x, q.y, q.z, q.w)
-        self._have_odom = True
+        # yaw from quaternion
+        # compute yaw analytically
+        siny_cosp = 2.0 * (q.w * q.z + q.x * q.y)
+        cosy_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z)
+        self._yaw = math.atan2(siny_cosp, cosy_cosp)
 
-    # ---- Cancel handling ----
+    def goal_cb(self, goal_req):
+        # accept every goal
+        self.get_logger().info(f"Received goal: angle={goal_req.angle:.3f} rad")
+        return rclpy.action.GoalResponse.ACCEPT
+
     def cancel_cb(self, goal_handle):
-        self.get_logger().info('Cancel requested.')
+        self.get_logger().info("Cancel requested")
         return CancelResponse.ACCEPT
 
-    # ---- Core execute ----
-    async def execute_cb(self, goal_handle):
-        goal = goal_handle.request
-        kp = float(self.get_parameter('kp').get_parameter_value().double_value)
-        max_speed = float(self.get_parameter('max_speed').get_parameter_value().double_value)
-        tol = float(self.get_parameter('tolerance').get_parameter_value().double_value)
-        rate_hz = float(self.get_parameter('rate_hz').get_parameter_value().double_value)
-        dt = 1.0 / rate_hz
+    # --- main execute ---
+    def execute_cb(self, goal_handle):
+        angle_target = float(goal_handle.request.angle)
+        kp = self.get_parameter('kp').value
+        max_w = self.get_parameter('max_w').value
+        min_w = self.get_parameter('min_w').value
+        tol_rad = math.radians(self.get_parameter('tolerance_deg').value)
 
-        # รอ odom ก่อน (กัน feedback = NaN)
-        while rclpy.ok() and not self._have_odom:
-            await asyncio.sleep(0.05)
+        # latch starting yaw and target yaw
+        start_yaw = self._yaw
+        target_yaw = normalize_angle(start_yaw + angle_target)
 
-        start_yaw = self._current_yaw
-        target_yaw = start_yaw + float(goal.angle)
+        fb = Rotate.Feedback()
+        twist = Twist()
 
-        feedback = Rotate.Feedback()
+        # 10 Hz loop
+        dt = 0.1
+        last_ok_hits = 0
+        required_hits = 5  # stay in tolerance for ~0.5 s
 
-        # ใช้ counter ให้มันทนต่อ noise (อยู่ในกรอบ tol ต่อเนื่องสัก 3 รอบ)
-        stable_count = 0
+        while rclpy.ok():
+            if goal_handle.is_cancel_requested:
+                # stop
+                self._stop_robot()
+                goal_handle.canceled()
+                self.get_logger().info("Goal canceled")
+                result = Rotate.Result()
+                result.success = False
+                return result
 
-        self.get_logger().info(f'Goal angle = {goal.angle:.3f} rad | kp={kp}, max={max_speed}, tol={tol}')
+            # remaining angle (shortest path)
+            remaining = normalize_angle(target_yaw - self._yaw)
+            fb.remaining_angle = remaining
+            goal_handle.publish_feedback(fb)
 
-        try:
-            while rclpy.ok():
-                if goal_handle.is_cancel_requested:
-                    self._stop_robot()
-                    goal_handle.canceled()
-                    self.get_logger().info('Goal canceled.')
-                    return Rotate.Result(success=False)
+            # check done (tolerance ±10 deg)
+            if abs(remaining) <= tol_rad:
+                last_ok_hits += 1
+            else:
+                last_ok_hits = 0
 
-                # remaining angle = target - current (แบบห่อมุม)
-                error = angle_wrap(target_yaw - self._current_yaw)
+            if last_ok_hits >= required_hits:
+                break
 
-                # P controller
-                omega = kp * error
-                # limit speed
-                omega = max(-max_speed, min(max_speed, omega))
+            # P controller on yaw error
+            w = kp * remaining
+            # saturate
+            w = max(-max_w, min(max_w, w))
+            # apply a minimum magnitude to overcome stiction
+            if abs(w) < min_w:
+                w = math.copysign(min_w, w)
 
-                # ส่งคำสั่งหมุน
-                twist = Twist()
-                twist.angular.z = omega
-                self.cmd_pub.publish(twist)
+            twist.linear.x = 0.0
+            twist.angular.z = w
+            self.cmd_pub.publish(twist)
 
-                # ส่ง feedback 10 Hz
-                feedback.remaining_angle = float(error)
-                goal_handle.publish_feedback(feedback)
+            time.sleep(dt)
 
-                # เช็คสำเร็จ
-                if abs(error) <= tol:
-                    stable_count += 1
-                else:
-                    stable_count = 0
-
-                if stable_count >= 3:
-                    break
-
-                await asyncio.sleep(dt)
-        finally:
-            # หยุดหุ่นยนต์เสมอเมื่อจบ
-            self._stop_robot()
-
+        # stop & succeed
+        self._stop_robot()
         goal_handle.succeed()
-        self.get_logger().info('Rotation finished. Success.')
-        result = Rotate.Result()
-        result.success = True
-        return result
+        res = Rotate.Result()
+        res.success = True
+        self.get_logger().info("Goal reached successfully")
+        return res
 
     def _stop_robot(self):
         msg = Twist()
-        self.cmd_pub.publish(msg)  # ศูนย์หมด = หยุด
-        # ส่งซ้ำ 2-3 ครั้งกันพลาด
-        self.cmd_pub.publish(msg)
+        msg.linear.x = 0.0
+        msg.angular.z = 0.0
         self.cmd_pub.publish(msg)
 
 
-def main():
-    rclpy.init()
+def main(args=None):
+    rclpy.init(args=args)
     node = RotateActionServer()
-    rclpy.spin(node)
-    node.destroy_node()
-    rclpy.shutdown()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node._stop_robot()
+        node.destroy_node()
+        rclpy.shutdown()
 
 
 if __name__ == '__main__':

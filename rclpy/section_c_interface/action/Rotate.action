@@ -1,6 +1,6 @@
-# Request
-float64 angle # target rotation in radians (+CCW, _CW) 
- 
+# Goal
+float32 angle
+
 ---
 
 # Result
@@ -9,4 +9,4 @@ bool success
 ---
 
 # Feedback
-float64 remaining_angle
+float32 remaining_angle
