@@ -1,29 +1,25 @@
 <h1><b>ROS2 Midterm Exam</b></h1>
 
-Test your understanding of ROS2 fundamental concepts such as “Publisher”, “Subscriber”, “Interface”, “Service”, and “Action” through the simulation software and implementation
+<p style="font-size:16px;"> Test your understanding of <b>Publisher</b>, <b>Subscriber</b>, <b>Service</b>, and <b>Action</b> through TurtleBot3 Gazebo simulation. </p>
+<span style="color:blue"><b>Important Note: Use ROS2 Humble.</b></span>
 
 <h1><b>Instructions</b></h1>
 
-
 • Use ROS2 Python or C++ (student choice)
 • Each task will be tested in the TurtleBot3 Gazebo simulation.
-• Code must be properly organized in a ROS2 package with clear
-node names.
+• Code must be properly organized in a ROS2 package with clear node names.
 • These exams are already separated into 3 parts (100 Points) :
-• Section A: Publisher & Subscriber (30 Points)
-• Section B: Service (30 Points)
-• Section C: Action (40 Points)
-• Students are allowed to use any tools, including generative AI like
-ChatGPT and Gemini, but students must clearly understand and
-be able to answer any questions that belong to the generated
-code.
+    Section A: Publisher & Subscriber (30 Points)
+    Section B: Service (30 Points)
+    Section C: Action (40 Points)
+• Students are allowed to use any tools, including generative AI like ChatGPT and Gemini, but students must clearly understand and be able to answer any questions that belong to the generated code.
 
-Section A: Publisher & Subscriber (30 points)
-• Task A1(Publisher) – 10 pts
+<h3><b>Section A: Publisher & Subscriber</b></h3> (30 points)
+• <p style="font-size:18px;">Task A1(Publisher) &lt;br&gt;.</p> – 10 pts
 Create a node name “circle_publisher” that continuously publishes desire
 velocity commands (geometry_msgs/msg/Twist) to make Turtlebot3 move in
 a circle of radius ~0.5 meters.
-• Task A2(Subscriber) – 20 pts
+• <p style="font-size:18px;">Task A2(Subscriber) &lt;br&gt;.</p> – 20 pts
 Create a node name “odom_logger” that subscribes to “/odom” and prints:
 • Robot’s x, y position.
 • Robot’s orientation (yaw angle)
