@@ -1,7 +1,9 @@
-# ROS2-Midterm-Exam
+<h1><b>ROS2 Midterm Exam</b></h1>
+
 Test your understanding of ROS2 fundamental concepts such as “Publisher”, “Subscriber”, “Interface”, “Service”, and “Action” through the simulation software and implementation
 
-Instructions
+<h1><b>Instructions</b></h1>
+
 
 • Use ROS2 Python or C++ (student choice)
 • Each task will be tested in the TurtleBot3 Gazebo simulation.
