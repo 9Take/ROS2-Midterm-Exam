@@ -1,7 +1,6 @@
 <h1><b>ROS2 Midterm Exam</b></h1> 
 <p style="font-size:16px;"> Test your understanding of <b>Publisher</b>, <b>Subscriber</b>, <b>Service</b>, and <b>Action</b> through TurtleBot3 Gazebo simulation. 
-
-</p> <span style="color:blue"><b>Important Note: Use ROS2 Humble.</b></span> 
+</p> <span style="color:blue"><b>Important Note: Use ROS2 Humble, Turtlebot3 Simulation : https://github.com/ROBOTIS-GIT/turtlebot3_simulations </b></span> 
 
 <h1><b>Instructions</b></h1> <ul> <li>Use ROS2 Python or C++ (student choice)</li> <li>Each task will be tested in the TurtleBot3 Gazebo simulation.</li> <li>Code must be properly organized in a ROS2 package with clear node names.</li> <li>These exams are already separated into 3 parts (100 Points): <ul> <li>Section A: Publisher &amp; Subscriber (30 Points)</li> <li>Section B: Service (30 Points)</li> <li>Section C: Action (40 Points)</li> </ul> </li> <li>Students are allowed to use any tools, including generative AI like ChatGPT and Gemini, but students must clearly understand and be able to answer any questions that belong to the generated code.</li> </ul> 
 
